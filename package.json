@@ -1,0 +1,32 @@
+{
+  "name": "plantilla_laboratorio",
+  "version": "1.0.0",
+  "description": "Plantilla base para laboratorios 3D industriales",
+  "scripts": {
+    "edit": "node dev-tools/save-server.js",
+    "scan": "node dev-tools/scan-assets.js",
+    "server": "node dev-tools/save-server.js",
+    "build": "node dev-tools/build-app.js",
+    "build:clean": "node dev-tools/build-app.js --clean",
+    "build:dry": "node dev-tools/build-app.js --dry-run",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "v3d-clean": "node dev-tools/clean-v3d.js",
+    "elevenlabs": "node dev-tools/bulk-tts.mjs"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^7.6.17",
+    "@storybook/addon-links": "^7.6.17",
+    "@storybook/html": "^7.6.17",
+    "@storybook/html-webpack5": "^7.6.17",
+    "storybook": "^7.6.17"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.45.0",
+    "dotenv": "^17.4.2"
+  }
+}

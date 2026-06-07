@@ -1,0 +1,544 @@
+{
+  "laboratorio": "Motor Eléctrico",
+  "verge3dUrl": "./verge3d_assets/motorElectrico.html",
+  "imageUrl": "./images/fondo.png",
+  "logoUrl": "./images/logo_chinalco.png",
+  "menuIconImage": "./images/icon1.png",
+  "themeColor": "#10b981",
+  "inicioEstado": {
+    "camara": "camera_Pos01",
+    "camaraDireccion": "camera_Dir01",
+    "ocultarObjetos": [],
+    "animacionInicio": null
+  },
+  "objetos_cristal": [
+    "pPlatonic1"
+  ],
+  "menu": [
+    {
+      "id": "paso1",
+      "ESdescription": "Vista Libre",
+      "ENdescription": "Free View",
+      "icon": "deployed_code",
+      "animaciones": [],
+      "objetos_mostrar": [],
+      "objetos_ocultar": [],
+      "camara": "camera_Pos01",
+      "camaraDireccion": "camera_Dir01",
+      "objeto_resaltar": [],
+      "detener_animaciones": true,
+      "audio_path": "audios/1.mp3"
+    },
+    {
+      "id": "paso2",
+      "ESdescription": "Partes",
+      "ENdescription": "Components",
+      "icon": "settings_input_component",
+      "animaciones": [],
+      "objetos_mostrar": [],
+      "objetos_ocultar": [],
+      "camara": "camera_Pos01",
+      "camaraDireccion": "camera_Dir01",
+      "objeto_resaltar": [],
+      "detener_animaciones": true,
+      "audio_path": "audios/2.mp3",
+      "_children": null,
+      "children": [
+        {
+          "id": "paso2_1",
+          "ESdescription": "Cajón de Alimentación",
+          "ENdescription": "Feed Box",
+          "icon": "./images/icon2.png",
+          "animaciones": [],
+          "objetos_mostrar": [],
+          "objetos_ocultar": [
+            "mineral02_mesh",
+            "mineral03_mesh",
+            "materialLiquido_mesh",
+            "flechas02_mesh",
+            "flechas03_mesh",
+            "flechas01_mesh",
+            "ball_01_mesh",
+            "ball_02_mesh",
+            "ball_03_mesh",
+            "ball_04_mesh",
+            "ball_05_mesh",
+            "ball_06_mesh",
+            "ball_07_mesh",
+            "ball_08_mesh",
+            "ball_09_mesh",
+            "ball_10_mesh",
+            "ball_11_mesh",
+            "ball_12_mesh",
+            "ball_13_mesh",
+            "ball_14_mesh",
+            "ball_15_mesh",
+            "ballExtra_01_mesh",
+            "ballExtra_02_mesh"
+          ],
+          "camara": "cam_Pos06",
+          "camaraDireccion": "cam_Dir06",
+          "etiqueta": "chuteAlimentacion_etiqueta_lc",
+          "flecha": "chuteAlimentacion_lc",
+          "objeto_resaltar": [
+            "tolva_mesh",
+            "cajonEstabilizador_mesh",
+            "conducto_mesh",
+            "carroMovil_mesh"
+          ],
+          "detener_animaciones": true,
+          "audio_path": "audios/2_1.mp3",
+          "subtitle": "Ubicación del cajón de alimentación.",
+          "subtitleEN": "Location of the feed box.",
+          "status": "Activo",
+          "statusEN": "Active"
+        },
+        {
+          "id": "paso2_2",
+          "ESdescription": "Cojinete de Alimentación",
+          "ENdescription": "Feed Bearing",
+          "icon": "./images/icon2.png",
+          "animaciones": [],
+          "objetos_mostrar": [],
+          "objetos_ocultar": [
+            "mineral02_mesh",
+            "mineral03_mesh",
+            "materialLiquido_mesh",
+            "flechas02_mesh",
+            "flechas03_mesh",
+            "flechas01_mesh",
+            "ball_01_mesh",
+            "ball_02_mesh",
+            "ball_03_mesh",
+            "ball_04_mesh",
+            "ball_05_mesh",
+            "ball_06_mesh",
+            "ball_07_mesh",
+            "ball_08_mesh",
+            "ball_09_mesh",
+            "ball_10_mesh",
+            "ball_11_mesh",
+            "ball_12_mesh",
+            "ball_13_mesh",
+            "ball_14_mesh",
+            "ball_15_mesh",
+            "ballExtra_01_mesh",
+            "ballExtra_02_mesh"
+          ],
+          "camara": "cam_Pos07",
+          "camaraDireccion": "cam_Dir07",
+          "etiqueta": "cojineteFijoA_etiqueta_lc",
+          "flecha": "cojineteFijoA_lc",
+          "objeto_resaltar": [
+            "cojineteFront_P01_mesh",
+            "cojineteFront_P02_mesh",
+            "padHidro01_mesh",
+            "padEmpuje_mesh"
+          ],
+          "detener_animaciones": true,
+          "audio_path": "audios/2_2.mp3",
+          "subtitle": "Visualización del cojinete de alimentación.",
+          "subtitleEN": "View of the feed bearing.",
+          "status": "Activo",
+          "statusEN": "Active"
+        },
+        {
+          "id": "paso2_3",
+          "ESdescription": "Cuerpo del Molino",
+          "ENdescription": "Mill Body",
+          "icon": "./images/icon2.png",
+          "animaciones": [],
+          "objetos_mostrar": [],
+          "objetos_ocultar": [
+            "mineral02_mesh",
+            "mineral03_mesh",
+            "materialLiquido_mesh",
+            "flechas02_mesh",
+            "flechas03_mesh",
+            "flechas01_mesh",
+            "ball_01_mesh",
+            "ball_02_mesh",
+            "ball_03_mesh",
+            "ball_04_mesh",
+            "ball_05_mesh",
+            "ball_06_mesh",
+            "ball_07_mesh",
+            "ball_08_mesh",
+            "ball_09_mesh",
+            "ball_10_mesh",
+            "ball_11_mesh",
+            "ball_12_mesh",
+            "ball_13_mesh",
+            "ball_14_mesh",
+            "ball_15_mesh",
+            "ballExtra_01_mesh",
+            "ballExtra_02_mesh"
+          ],
+          "camara": "cam_Pos13",
+          "camaraDireccion": "cam_Dir13",
+          "etiqueta": "cuerpoMolino_etiqueta_lc",
+          "flecha": "cuerpoMolino_lc",
+          "objeto_resaltar": [
+            "shell_mesh",
+            "trunionA_mesh",
+            "tapaA_mesh",
+            "trunioD_mesh",
+            "tapaD_mesh"
+          ],
+          "detener_animaciones": true,
+          "audio_path": "audios/2_3.mp3",
+          "subtitle": "Estructura principal del cuerpo molino.",
+          "subtitleEN": "Main structure of mill body.",
+          "status": "Activo",
+          "statusEN": "Active"
+        },
+        {
+          "id": "paso2_4",
+          "ESdescription": "Cojinete de Descarga",
+          "ENdescription": "Discharge Bearing",
+          "icon": "./images/icon2.png",
+          "animaciones": [],
+          "objetos_mostrar": [],
+          "objetos_ocultar": [
+            "mineral02_mesh",
+            "mineral03_mesh",
+            "materialLiquido_mesh",
+            "flechas02_mesh",
+            "flechas03_mesh",
+            "flechas01_mesh",
+            "ball_01_mesh",
+            "ball_02_mesh",
+            "ball_03_mesh",
+            "ball_04_mesh",
+            "ball_05_mesh",
+            "ball_06_mesh",
+            "ball_07_mesh",
+            "ball_08_mesh",
+            "ball_09_mesh",
+            "ball_10_mesh",
+            "ball_11_mesh",
+            "ball_12_mesh",
+            "ball_13_mesh",
+            "ball_14_mesh",
+            "ball_15_mesh",
+            "ballExtra_01_mesh",
+            "ballExtra_02_mesh"
+          ],
+          "camara": "cam_Pos18",
+          "camaraDireccion": "cam_Dir18",
+          "etiqueta": "cojineteD_etiqueta_lc",
+          "flecha": "cojineteD_lc",
+          "objeto_resaltar": [
+            "cojinetePost_P01_mesh",
+            "cojinetePost_P02_mesh"
+          ],
+          "detener_animaciones": true,
+          "audio_path": "audios/2_4.mp3",
+          "subtitle": "Revisión del cojinete de descarga.",
+          "subtitleEN": "Review of the discharge bearing.",
+          "status": "Activo",
+          "statusEN": "Active"
+        },
+        {
+          "id": "paso2_5",
+          "ESdescription": "Trommel",
+          "ENdescription": "Trommel",
+          "icon": "./images/icon2.png",
+          "animaciones": [],
+          "objetos_mostrar": [],
+          "objetos_ocultar": [
+            "mineral02_mesh",
+            "mineral03_mesh",
+            "materialLiquido_mesh",
+            "flechas02_mesh",
+            "flechas03_mesh",
+            "flechas01_mesh",
+            "ball_01_mesh",
+            "ball_02_mesh",
+            "ball_03_mesh",
+            "ball_04_mesh",
+            "ball_05_mesh",
+            "ball_06_mesh",
+            "ball_07_mesh",
+            "ball_08_mesh",
+            "ball_09_mesh",
+            "ball_10_mesh",
+            "ball_11_mesh",
+            "ball_12_mesh",
+            "ball_13_mesh",
+            "ball_14_mesh",
+            "ball_15_mesh",
+            "ballExtra_01_mesh",
+            "ballExtra_02_mesh"
+          ],
+          "camara": "cam_Pos19",
+          "camaraDireccion": "cam_Dir19",
+          "etiqueta": "tromel_etiqueta_lc",
+          "flecha": "tromel_lc",
+          "objeto_resaltar": [
+            "tromel_mesh"
+          ],
+          "detener_animaciones": true,
+          "audio_path": "audios/2_5.mp3",
+          "subtitle": "Inspección del componente Trommel.",
+          "subtitleEN": "Inspection of the Trommel component.",
+          "status": "Activo",
+          "statusEN": "Active"
+        }
+      ]
+    },
+    {
+      "id": "paso3",
+      "ESdescription": "Explosion",
+      "ENdescription": "Explosion",
+      "icon": "open_in_full",
+      "animaciones": [
+        {
+          "nombre": "chuteAlimentacion_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "rotor_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cojineteFijoA_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cojineteFront_P01_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cojineteFront_P02_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "padHidro01_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "padEmpuje_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "trunionA_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "tapaA_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "estator02_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "estator03_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "estator04_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "estator01_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "revestimientos02_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "revestimientos04_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "lub_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "conjuntoFreno_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "freno02_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "shell_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "tapaDescarga_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "tapaMolino03_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "trunioD_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cojineteD_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cojinetePost_P01_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cojinetePost_P02_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "padHidro02_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "tromel_group",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "chute_mesh",
+          "frame": [
+            300,
+            380
+          ],
+          "modo": "LoopOnce"
+        }
+      ],
+      "objetos_mostrar": [],
+      "objetos_ocultar": [],
+      "camara": "camera_Pos01",
+      "camaraDireccion": "camera_Dir01",
+      "objeto_resaltar": [],
+      "detener_animaciones": true,
+      "audio_path": "audios/3.mp3"
+    }
+  ],
+  "ayudas": {
+    "tieneBotonAyuda": true,
+    "tieneBotonObjetivos": true,
+    "tieneBotonEquipo": true,
+    "tieneBotonSonido": true,
+    "tieneBotonLang": true,
+    "tieneBotonGuardar": false
+  },
+  "backgroundColor": "#00c26e",
+  "backgroundType": "image",
+  "laboratorioEN": "Electric Motor",
+  "objetivos": [],
+  "epp": [],
+  "camaraZoomMax": 100
+}

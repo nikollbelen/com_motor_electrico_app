@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Vista Compartida — Laboratorio 3D</title>
+  <meta name="description" content="Vista en tiempo real del laboratorio 3D. Experiencia de visualización sincronizada." />
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SUPABASE CREDENTIALS
+       En Vercel, usa Environment Variables para inyectar estos valores.
+       En desarrollo local, reemplaza con tus credenciales de Supabase.
+       ═══════════════════════════════════════════════════════════ -->
+  <meta name="supabase-url" content="https://znampiflhxbrhakedlit.supabase.co" />
+  <meta name="supabase-anon-key" content="sb_publishable_adYL72YsHjgbpdunGi6k7w_yfvyXahe" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-surface: #f0f2f5;
+      --color-glass: rgba(255, 255, 255, 0.6);
+      --color-glass-border: rgba(0, 0, 0, 0.08);
+      --color-accent: #4ecdc4;
+      --color-accent-glow: rgba(78, 205, 196, 0.4);
+      --color-error: #ef4444;
+      --color-text: #1a1c1e;
+      --color-text-muted: rgba(26, 28, 30, 0.5);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--color-surface);
+      color: var(--color-text);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── Escena 3D (iframe) ─────────────────────────── */
+    #v3d-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: 1;
+    }
+
+    /* ── Overlay UI ─────────────────────────────────── */
+    #viewer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ── Badge de sala ──────────────────────────────── */
+    #room-badge {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 100;
+      pointer-events: auto;
+
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      background: var(--color-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--color-glass-border);
+      border-radius: 12px;
+      padding: 10px 16px;
+
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      transition: opacity 0.3s ease;
+      animation: badge-fade-in 0.8s ease forwards;
+    }
+
+    #room-badge .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 8px rgba(22, 163, 74, 0.5);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    #room-badge .badge-label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+
+    #room-badge .badge-id {
+      color: var(--color-text);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace, 'Inter';
+    }
+
+    @keyframes badge-fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── Status toast (conexión/error) ──────────────── */
+    #status-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-60px);
+      z-index: 200;
+      pointer-events: none;
+
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      background: var(--color-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--color-glass-border);
+      border-radius: 12px;
+      padding: 10px 20px;
+
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text);
+
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+      opacity: 0;
+    }
+
+    #status-toast.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    #status-toast .toast-icon {
+      font-size: 18px;
+    }
+
+    #status-toast.status-connected .toast-icon { color: #16a34a; }
+    #status-toast.status-error .toast-icon { color: var(--color-error); }
+    #status-toast.status-loading .toast-icon { color: #f59e0b; }
+
+    /* ── Loading screen ─────────────────────────────── */
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 500;
+      background: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.6s ease;
+    }
+
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0,0,0,0.08);
+      border-top-color: var(--color-primary, #4ecdc4);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Snapshot badge (cuando se carga un snapshot) ── */
+    #snapshot-badge {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      pointer-events: auto;
+
+      display: none;
+      align-items: center;
+      gap: 8px;
+
+      background: rgba(255, 107, 107, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      border-radius: 12px;
+      padding: 10px 16px;
+
+      font-size: 12px;
+      color: var(--color-error);
+      font-weight: 500;
+
+      animation: badge-fade-in 0.8s ease forwards;
+    }
+
+    #snapshot-badge .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    /* ── Panel de voz (aparece cuando el presentador activa el mic) ── */
+    #voice-panel {
+      position: fixed;
+      /* safe-area-inset-bottom: sube el botón sobre el bottom bar en iOS */
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+      right: calc(env(safe-area-inset-right, 0px) + 20px);
+      z-index: 100;
+      pointer-events: auto;
+      display: none;
+      animation: badge-fade-in 0.5s ease forwards;
+    }
+
+    #voice-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /* min 44px alto para target táctil en móvil */
+      min-height: 44px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      /* Evita que el tap en iOS resalte */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #voice-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.12);
+    }
+
+    #voice-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    #voice-btn.vb-connecting {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    #voice-btn.vb-connected {
+      background: rgba(22,163,74,0.15);
+      border-color: rgba(22,163,74,0.3);
+      color: #16a34a;
+    }
+
+    @keyframes vb-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #voice-btn.vb-connecting .material-symbols-outlined {
+      animation: vb-spin 1s linear infinite;
+    }
+
+    /* ── Q&A Viewer ─────────────────────────────────── */
+    #qa-btn-wrap {
+      position: fixed;
+      bottom: 78px;
+      left: 20px;
+      z-index: 100;
+      pointer-events: auto;
+      display: none;
+      animation: badge-fade-in 0.5s ease forwards;
+    }
+
+    .qa-float-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+
+    .qa-float-btn:hover {
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.12);
+    }
+
+    .qa-float-btn .material-symbols-outlined { font-size: 18px; }
+
+    .qa-notif-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--color-primary, #0066ff);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      border: 2px solid rgba(255,255,255,0.9);
+      display: none;
+    }
+
+    /* Backdrop que cierra el panel */
+    #qa-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 115;
+      background: rgba(0,0,0,0.18);
+      display: none;
+      pointer-events: auto;
+      animation: qa-fade-in 0.2s ease;
+    }
+
+    @keyframes qa-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Bottom sheet */
+    .qa-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: min(72vh, 540px);
+      z-index: 120;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 20px 20px 0 0;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.14);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    .qa-sheet.open { transform: translateY(0); }
+
+    .qa-sheet-handle {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: rgba(0,0,0,0.12);
+      margin: 10px auto 0;
+      flex-shrink: 0;
+    }
+
+    .qa-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      flex-shrink: 0;
+    }
+
+    .qa-sheet-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1c1e;
+    }
+
+    .qa-sheet-title .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--color-primary, #0066ff);
+      font-variation-settings: 'FILL' 1;
+    }
+
+    .qa-sheet-close {
+      /* Mínimo 44px para target táctil en móvil */
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #44474e;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .qa-sheet-close:hover { background: rgba(0,0,0,0.06); }
+    .qa-sheet-close .material-symbols-outlined { font-size: 20px; }
+
+    /* Lista de preguntas */
+    .qa-questions-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .qa-empty {
+      text-align: center;
+      color: #94a3b8;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 32px 0;
+    }
+
+    .qa-question-item {
+      background: #f8f9fb;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .qa-question-item.qa-answered {
+      background: rgba(22,163,74,0.06);
+      border-color: rgba(22,163,74,0.2);
+    }
+
+    .qa-question-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #1a1c1e;
+      line-height: 1.55;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+
+    .qa-question-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .qa-question-status .material-symbols-outlined {
+      font-size: 14px;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    /* Input area */
+    .qa-input-row {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.95);
+      flex-shrink: 0;
+      align-items: flex-end;
+    }
+
+    .qa-textarea-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .qa-textarea {
+      width: 100%;
+      resize: none;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; /* 16px mínimo para que iOS Safari no haga zoom al enfocar */
+      color: #1a1c1e;
+      background: #f8f9fb;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      line-height: 1.45;
+    }
+
+    .qa-textarea:focus {
+      border-color: var(--color-primary, #0066ff);
+      box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 0,102,255), 0.12);
+      background: #fff;
+    }
+
+    .qa-textarea::placeholder { color: #94a3b8; }
+
+    .qa-char-count {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      font-size: 10px;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .qa-send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: var(--gradient-primary, var(--color-primary, #0066ff));
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(var(--color-primary-rgb, 0,102,255), 0.35);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .qa-send-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(var(--color-primary-rgb, 0,102,255), 0.45);
+    }
+
+    .qa-send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .qa-send-btn .material-symbols-outlined { font-size: 20px; }
+  </style>
+</head>
+
+<body class="lang-es">
+
+  <!-- Loading screen -->
+  <div id="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Conectando con la sala...</div>
+  </div>
+
+  <!-- Pantalla sala cerrada -->
+  <div id="room-closed-screen" style="display:none;">
+    <div class="closed-content">
+      <div class="closed-icon">
+        <span class="material-symbols-outlined">cast_pause</span>
+      </div>
+      <h2 class="closed-title">Sala no disponible</h2>
+      <p class="closed-desc">La sala <strong id="closed-room-name"></strong> no está activa en este momento.<br>Pídele a tu profesor que inicie la sala para unirte.</p>
+      <button class="closed-retry" id="closed-retry-btn">
+        <span class="material-symbols-outlined" style="font-size:18px;">refresh</span>
+        Reintentar
+      </button>
+    </div>
+  </div>
+
+  <style>
+    #room-closed-screen {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #f8f9fb 0%, #e8ecf1 100%);
+      font-family: 'Inter', sans-serif;
+    }
+    .closed-content { text-align: center; max-width: 420px; padding: 32px; }
+    .closed-icon {
+      width: 80px; height: 80px; border-radius: 24px; margin: 0 auto 24px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(var(--color-primary-rgb, 0,102,255), 0.1);
+      color: var(--color-primary, #0066ff);
+      box-shadow: 0 0 30px rgba(var(--color-primary-rgb, 0,102,255), 0.15);
+    }
+    .closed-icon .material-symbols-outlined { font-size: 40px; font-variation-settings: 'FILL' 1; }
+    .closed-title { font-size: 24px; font-weight: 700; color: #1a1c1e; margin-bottom: 12px; }
+    .closed-desc { font-size: 15px; color: #44474e; line-height: 1.7; margin-bottom: 28px; }
+    .closed-desc strong { color: var(--color-primary, #0066ff); }
+    .closed-retry {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 14px; border: none;
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.3s;
+      background: var(--gradient-primary, var(--color-primary, #0066ff));
+      color: #fff; box-shadow: 0 4px 16px rgba(var(--color-primary-rgb, 0,102,255), 0.35);
+    }
+    .closed-retry:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(var(--color-primary-rgb, 0,102,255), 0.45); }
+  </style>
+
+  <!-- Escena 3D (Verge3D iframe) -->
+  <iframe id="v3d-container" title="Laboratorio 3D — Vista Compartida"></iframe>
+
+  <!-- Overlay UI (sin controles, solo indicadores) -->
+  <div id="viewer-overlay">
+    <div id="room-badge">
+      <span class="badge-dot"></span>
+      <span class="badge-label">Sala</span>
+      <span class="badge-id" id="room-id-display">—</span>
+    </div>
+    <div id="snapshot-badge">
+      <span class="material-symbols-outlined">photo_camera</span>
+      <span>Snapshot: <strong id="snapshot-id-display"></strong></span>
+    </div>
+  </div>
+
+  <!-- Panel de voz: aparece cuando el presentador activa el micrófono -->
+  <div id="voice-panel">
+    <button id="voice-btn">
+      <span class="material-symbols-outlined" id="voice-icon">volume_up</span>
+      <span id="voice-label">Escuchar voz</span>
+    </button>
+  </div>
+
+  <!-- Q&A: botón flotante (aparece cuando sala está activa) -->
+  <div id="qa-btn-wrap">
+    <button id="qa-open-btn" class="qa-float-btn">
+      <span class="material-symbols-outlined">forum</span>
+      <span>Preguntas</span>
+      <span class="qa-notif-badge" id="qa-notif-badge"></span>
+    </button>
+  </div>
+
+  <!-- Q&A: backdrop para cerrar el panel -->
+  <div id="qa-backdrop"></div>
+
+  <!-- Q&A: panel tipo bottom sheet -->
+  <div class="qa-sheet" id="qa-sheet">
+    <div class="qa-sheet-handle"></div>
+    <div class="qa-sheet-header">
+      <div class="qa-sheet-title">
+        <span class="material-symbols-outlined">forum</span>
+        Mis preguntas
+      </div>
+      <button id="qa-sheet-close" class="qa-sheet-close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="qa-questions-list" id="qa-questions-list">
+      <div class="qa-empty">Aún no has enviado preguntas</div>
+    </div>
+    <div class="qa-input-row">
+      <div class="qa-textarea-wrap">
+        <textarea id="qa-input" class="qa-textarea" placeholder="Escribe tu pregunta..." maxlength="300" rows="2"></textarea>
+        <span class="qa-char-count" id="qa-char-count">300</span>
+      </div>
+      <button id="qa-send-btn" class="qa-send-btn" disabled>
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="status-toast">
+    <span class="material-symbols-outlined toast-icon">wifi</span>
+    <span class="toast-text">Conectado</span>
+  </div>
+
+  <input id="estado_animacion" value="0" style="display:none;" />
+  <span id="loading_percentage" style="display:none;">0%</span>
+
+  <script type="module">
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get('room');
+    const snapshotId = params.get('snapshot');
+
+    if (!roomId && !snapshotId) {
+      document.querySelector('.loading-text').textContent = 'Error: Falta el parámetro ?room=ID en la URL';
+      document.querySelector('.loading-spinner').style.display = 'none';
+      throw new Error('No room ID or snapshot ID provided');
+    }
+
+    // Modo snapshot-only: ocultar badge de sala, mostrar badge de snapshot
+    const isSnapshotOnly = snapshotId && !roomId;
+    if (isSnapshotOnly) {
+      document.getElementById('room-badge').style.display = 'none';
+      document.querySelector('.loading-text').textContent = 'Cargando snapshot...';
+    } else {
+      document.getElementById('room-id-display').textContent = roomId || '—';
+    }
+
+    // ── Verificar si la sala está activa ANTES de cargar el 3D ──
+    async function checkRoomActive() {
+      const { supabase } = await import('./js/realtime/supabase-config.js');
+      const { data } = await supabase.from('room_states').select('state').eq('room_id', roomId).maybeSingle();
+      return data?.state?.active === true;
+    }
+
+    // Cargar config temprano para aplicar colores del tema a la pantalla cerrada
+    let earlyConfig = null;
+    try {
+      const resp = await fetch('./info.json');
+      earlyConfig = await resp.json();
+      if (earlyConfig.themeColor) {
+        const hex = earlyConfig.themeColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const root = document.documentElement;
+        root.style.setProperty('--color-primary', earlyConfig.themeColor);
+        root.style.setProperty('--color-primary-rgb', `${r}, ${g}, ${b}`);
+        root.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${earlyConfig.themeColor} 0%, rgb(${Math.max(0,r-60)},${Math.max(0,g-60)},${Math.max(0,b-60)}) 100%)`);
+      }
+    } catch (e) {}
+
+    async function showClosedScreen() {
+      document.getElementById('loading-screen').style.display = 'none';
+      // Ocultar escena 3D si está visible
+      const iframe = document.getElementById('v3d-container');
+      if (iframe) iframe.style.display = 'none';
+      const overlay = document.getElementById('viewer-overlay');
+      if (overlay) overlay.style.display = 'none';
+      const closedScreen = document.getElementById('room-closed-screen');
+      document.getElementById('closed-room-name').textContent = roomId;
+      closedScreen.style.display = 'flex';
+      document.getElementById('closed-retry-btn').onclick = async () => {
+        closedScreen.style.display = 'none';
+        document.getElementById('loading-screen').style.display = 'flex';
+        const active = await checkRoomActive();
+        if (active) { location.reload(); } else { showClosedScreen(); }
+      };
+    }
+
+    // Si es snapshot, cargar directo. Si es sala, verificar primero.
+    if (roomId && !snapshotId) {
+      const active = await checkRoomActive();
+      if (!active) { showClosedScreen(); throw new Error('Room not active'); }
+    }
+
+    // ── Cargar el laboratorio ──────────────────────────────────
+    import('./js/engine/V3DEngine.js').then(async ({ V3DEngine }) => {
+      const { ViewerSync } = await import('./js/realtime/viewer.js');
+
+      // ── 3. Cargar config del lab ────────────────────────────
+      let config;
+      try {
+        const resp = await fetch('./info.json');
+        config = await resp.json();
+      } catch (e) {
+        showToast('Error cargando configuración', 'error');
+        return;
+      }
+
+      // ── 4. Configurar iframe con la escena 3D ──────────────
+      const iframe = document.getElementById('v3d-container');
+      if (config.verge3dUrl) {
+        iframe.src = config.verge3dUrl;
+      }
+
+      // ── 5. Cargar assets_db ─────────────────────────────────
+      let allMeshes = [];
+      try {
+        const assetsResp = await fetch('./assets_db.json');
+        const assetsData = await assetsResp.json();
+        allMeshes = assetsData.meshes || [];
+      } catch (e) {
+        console.warn('[Viewer] No se pudo cargar assets_db.json');
+      }
+
+      // ── 5b. Aplicar variables CSS del tema ANTES de init del engine ──
+      //    (Necesario para que _injectPremiumStyles() las encuentre)
+      if (config.themeColor) {
+        const hex = config.themeColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const rgb = `${r}, ${g}, ${b}`;
+        const root = document.documentElement;
+
+        // Variables legacy
+        root.style.setProperty('--theme-color', config.themeColor);
+        root.style.setProperty('--theme-color-80', `rgba(${r}, ${g}, ${b}, 0.8)`);
+        root.style.setProperty('--theme-color-transparent', `rgba(${r}, ${g}, ${b}, 0.6)`);
+        root.style.setProperty('--theme-color-shadow', `rgba(${r}, ${g}, ${b}, 0.4)`);
+
+        // Variables Blue Core (para Etiqueta.css y UI moderna)
+        root.style.setProperty('--color-primary', config.themeColor);
+        root.style.setProperty('--color-primary-rgb', rgb);
+        root.style.setProperty('--color-primary-light', `rgb(${Math.min(255,r+60)}, ${Math.min(255,g+60)}, ${Math.min(255,b+60)})`);
+        root.style.setProperty('--color-primary-container', `rgb(${Math.max(0,r-60)}, ${Math.max(0,g-60)}, ${Math.max(0,b-60)})`);
+        root.style.setProperty('--color-on-primary-container', '#ffffff');
+        root.style.setProperty('--color-surface', '#ffffff');
+        root.style.setProperty('--color-on-surface', '#1a1c1e');
+        root.style.setProperty('--color-surface-variant', '#f0f1f4');
+        root.style.setProperty('--color-on-surface-variant', '#44474e');
+        root.style.setProperty('--color-surface-container', '#f8f9fb');
+        root.style.setProperty('--glow-primary', `rgba(${r}, ${g}, ${b}, 0.45)`);
+        root.style.setProperty('--glow-primary-strong', `rgba(${r}, ${g}, ${b}, 0.75)`);
+        root.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${config.themeColor} 0%, rgb(${Math.max(0,r-60)},${Math.max(0,g-60)},${Math.max(0,b-60)}) 100%)`);
+      }
+
+      // ── 6. Inicializar V3DEngine ────────────────────────────
+      const engine = new V3DEngine('v3d-container', config.themeColor, allMeshes);
+      showToast('Cargando escena 3D...', 'loading');
+
+      await engine.waitForReady();
+
+      // Aplicar estado inicial
+      if (config.inicioEstado) {
+        engine.ejecutarInicioEstado(config.inicioEstado);
+      }
+
+      // ── 7. Modo Read-Only: desactivar interacción en etiquetas y cámara ──
+      // Las etiquetas se muestran pero no responden a hover ni click
+      if (engine.annotations) {
+        engine.annotations.readOnly = true;
+      }
+
+      try {
+        if (engine.instance.controls) {
+          engine.instance.controls.enableRotate = false;
+          engine.instance.controls.enablePan = false;
+          engine.instance.controls.enableZoom = false;
+        }
+      } catch (e) {}
+
+      // ── 8. Ocultar loading, mostrar escena ──────────────────
+      const loadingScreen = document.getElementById('loading-screen');
+      loadingScreen.classList.add('hidden');
+      setTimeout(() => loadingScreen.style.display = 'none', 600);
+
+      // ── 9. Inicializar ViewerSync ───────────────────────────
+      const effectiveRoomId = roomId || 'standalone';
+      const viewer = new ViewerSync(engine, effectiveRoomId, config, {
+        lerpFactor: 0.08,
+        onStateReceived: () => {},
+        onError: (err) => { showToast('Error de conexión', 'error'); }
+      });
+
+      // Callback: cuando el presentador cierra la sala en tiempo real
+      viewer.onRoomClosed = () => {
+        showToast('El presentador cerró la sala', 'error');
+        setTimeout(() => showClosedScreen(), 1500);
+      };
+
+      // ── 10. Snapshot o Sala ─────────────────────────────────
+      if (snapshotId) {
+        try {
+          await viewer.loadSnapshot(snapshotId);
+          document.getElementById('snapshot-badge').style.display = 'flex';
+          document.getElementById('snapshot-id-display').textContent = snapshotId;
+          showToast('Snapshot cargado ✓', 'connected');
+        } catch (e) {
+          showToast(`Snapshot "${snapshotId}" no encontrado`, 'error');
+        }
+      } else if (roomId) {
+        await viewer.start();
+        showToast('Conectado a la sala ✓', 'connected');
+
+        // ── Voz en vivo ────────────────────────────────────────
+        let _viewerVoice = null;
+        const voicePanel = document.getElementById('voice-panel');
+        const voiceBtn   = document.getElementById('voice-btn');
+        const voiceIcon  = document.getElementById('voice-icon');
+        const voiceLabel = document.getElementById('voice-label');
+
+        function resetVoiceBtn() {
+          voiceBtn?.classList.remove('vb-connected', 'vb-connecting');
+          if (voiceIcon)  voiceIcon.textContent  = 'volume_up';
+          if (voiceLabel) voiceLabel.textContent = 'Escuchar voz';
+          if (voiceBtn)   voiceBtn.disabled = false;
+        }
+
+        function handleVoiceAvailability(active) {
+          if (active) {
+            voicePanel.style.display = 'block';
+          } else {
+            voicePanel.style.display = 'none';
+            if (_viewerVoice) { _viewerVoice.stop(); _viewerVoice = null; }
+            resetVoiceBtn();
+          }
+        }
+
+        // Reaccionar a cambios de estado (cuando el presentador activa/desactiva voz)
+        viewer.onStateReceived = (state) => handleVoiceAvailability(!!state.voiceActive);
+
+        // Ajustar el callback de sala cerrada para limpiar voz
+        const _prevOnRoomClosed = viewer.onRoomClosed;
+        viewer.onRoomClosed = () => {
+          if (_viewerVoice) { _viewerVoice.stop(); _viewerVoice = null; }
+          _prevOnRoomClosed?.();
+        };
+
+        // Verificar si la voz ya estaba activa al conectarse
+        if (viewer.lastState?.voiceActive) handleVoiceAvailability(true);
+
+        // Click en "Escuchar voz" / "Escuchando"
+        voiceBtn?.addEventListener('click', async () => {
+          // Si ya hay conexión activa, la detiene
+          if (_viewerVoice) {
+            _viewerVoice.stop(); _viewerVoice = null;
+            resetVoiceBtn();
+            return;
+          }
+          // Iniciar conexión de audio
+          voiceBtn.disabled = true;
+          voiceBtn.classList.add('vb-connecting');
+          if (voiceIcon)  voiceIcon.textContent  = 'sync';
+          if (voiceLabel) voiceLabel.textContent = 'Conectando...';
+          try {
+            const { ViewerVoice } = await import('./js/realtime/voice.js');
+            _viewerVoice = new ViewerVoice(effectiveRoomId);
+            _viewerVoice.onConnected = () => {
+              voiceBtn.disabled = false;
+              voiceBtn.classList.remove('vb-connecting');
+              voiceBtn.classList.add('vb-connected');
+              if (voiceIcon)  voiceIcon.textContent  = 'volume_up';
+              if (voiceLabel) voiceLabel.textContent = 'Escuchando';
+            };
+            _viewerVoice.onFailed = () => {
+              _viewerVoice.stop(); _viewerVoice = null;
+              resetVoiceBtn();
+              showToast('No se pudo conectar el audio', 'error');
+            };
+            await _viewerVoice.start();
+          } catch (e) {
+            console.error('[Voice] Error:', e);
+            _viewerVoice = null;
+            resetVoiceBtn();
+          }
+        });
+
+        // ── Q&A en vivo ────────────────────────────────────────
+        const { QAViewer } = await import('./js/realtime/qa.js');
+        const _qa = new QAViewer(effectiveRoomId);
+
+        const _qaBtnWrap   = document.getElementById('qa-btn-wrap');
+        const _qaSheet     = document.getElementById('qa-sheet');
+        const _qaBackdrop  = document.getElementById('qa-backdrop');
+        const _qaSheetClose= document.getElementById('qa-sheet-close');
+        const _qaList      = document.getElementById('qa-questions-list');
+        const _qaInput     = document.getElementById('qa-input');
+        const _qaSendBtn   = document.getElementById('qa-send-btn');
+        const _qaNotifBadge= document.getElementById('qa-notif-badge');
+        const _qaCharCount = document.getElementById('qa-char-count');
+
+        const _isTouchDevice = () => window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+        function _openQASheet() {
+          _qaSheet.classList.add('open');
+          _qaBackdrop.style.display = 'block';
+          // En móvil NO auto-enfocar: abrir el teclado inmediatamente es abrupto
+          if (!_isTouchDevice()) setTimeout(() => _qaInput.focus(), 60);
+        }
+        function _closeQASheet() {
+          _qaSheet.classList.remove('open');
+          _qaBackdrop.style.display = 'none';
+          _qaSheet.style.height = ''; // Resetear altura dinámica del teclado
+        }
+
+        // ── Ajuste de altura por teclado virtual (iOS Safari) ──
+        // En iOS la 'vh' no cambia al abrir el teclado; visualViewport sí.
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', () => {
+            if (!_qaSheet.classList.contains('open')) return;
+            const visH = window.visualViewport.height;
+            _qaSheet.style.height = Math.min(visH * 0.88, 540) + 'px';
+          });
+        }
+
+        document.getElementById('qa-open-btn').addEventListener('click', _openQASheet);
+        _qaSheetClose.addEventListener('click', _closeQASheet);
+        _qaBackdrop.addEventListener('click', _closeQASheet);
+
+        _qaInput.addEventListener('input', () => {
+          const len = _qaInput.value.length;
+          _qaCharCount.textContent = 300 - len;
+          _qaSendBtn.disabled = len === 0;
+        });
+
+        // Enviar con Enter (sin Shift) solo en desktop
+        // En móvil el Enter del teclado virtual inserta salto de línea (comportamiento esperado)
+        _qaInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey && !_qaSendBtn.disabled && !_isTouchDevice()) {
+            e.preventDefault();
+            _qaSendBtn.click();
+          }
+        });
+
+        _qaSendBtn.addEventListener('click', async () => {
+          const text = _qaInput.value.trim();
+          if (!text) return;
+          _qaSendBtn.disabled = true;
+          try {
+            await _qa.sendQuestion(text);
+            _qaInput.value = '';
+            _qaCharCount.textContent = '300';
+          } catch {
+            showToast('Error al enviar la pregunta', 'error');
+            _qaSendBtn.disabled = false;
+          }
+        });
+
+        function _escapeHtml(str) {
+          return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        _qa.onQuestionsUpdate = (questions) => {
+          // Badge: muestra el número de preguntas pendientes
+          const pending = questions.filter(q => !q.answered).length;
+          if (pending > 0 && !_qaSheet.classList.contains('open')) {
+            _qaNotifBadge.textContent = pending;
+            _qaNotifBadge.style.display = 'flex';
+          } else {
+            _qaNotifBadge.style.display = 'none';
+          }
+
+          if (questions.length === 0) {
+            _qaList.innerHTML = '<div class="qa-empty">Aún no has enviado preguntas</div>';
+            return;
+          }
+
+          _qaList.innerHTML = questions.map(q => `
+            <div class="qa-question-item ${q.answered ? 'qa-answered' : ''}">
+              <div class="qa-question-text">${_escapeHtml(q.question)}</div>
+              <div class="qa-question-status" style="color:${q.answered ? '#16a34a' : '#94a3b8'};">
+                <span class="material-symbols-outlined">${q.answered ? 'check_circle' : 'schedule'}</span>
+                ${q.answered ? 'Respondida' : 'Pendiente'}
+              </div>
+            </div>`).join('');
+
+          // Scroll al último si el panel está abierto
+          if (_qaSheet.classList.contains('open')) {
+            _qaList.scrollTop = _qaList.scrollHeight;
+          }
+        };
+
+        // Limpiar badge al abrir el panel
+        document.getElementById('qa-open-btn').addEventListener('click', () => {
+          _qaNotifBadge.style.display = 'none';
+        }, { once: false });
+
+        await _qa.start();
+        _qaBtnWrap.style.display = 'block';
+
+        // Extender onRoomClosed para limpiar Q&A
+        const _prevOnRoomClosedQA = viewer.onRoomClosed;
+        viewer.onRoomClosed = () => {
+          _qa.stop();
+          _closeQASheet();
+          _qaBtnWrap.style.display = 'none';
+          _prevOnRoomClosedQA?.();
+        };
+      }
+
+      // ── 11. Inyectar colores del tema al iframe ─────────────
+      try {
+        const iDoc = engine.iframe.contentDocument || engine.iframe.contentWindow.document;
+        const iRoot = iDoc.documentElement;
+        const pRoot = document.documentElement;
+        ['--color-primary', '--color-primary-rgb', '--glow-primary', '--glow-primary-strong'].forEach(v => {
+          const val = getComputedStyle(pRoot).getPropertyValue(v).trim();
+          if (val) iRoot.style.setProperty(v, val);
+        });
+      } catch (e) {}
+
+      // Exponer viewer en la consola para debugging
+      window.__viewer = viewer;
+      window.__engine = engine;
+
+    }).catch(err => {
+      console.error('[Viewer] Error de inicialización:', err);
+      showToast('Error inicializando el viewer', 'error');
+    });
+
+    // ── Utilidad: Toast de estado ──────────────────────────
+    function showToast(message, type = 'connected') {
+      const toast = document.getElementById('status-toast');
+      const icon = toast.querySelector('.toast-icon');
+      const text = toast.querySelector('.toast-text');
+
+      // Limpiar clases anteriores
+      toast.className = 'status-' + type;
+
+      // Icono según tipo
+      const icons = {
+        connected: 'wifi',
+        error: 'wifi_off',
+        loading: 'sync'
+      };
+      icon.textContent = icons[type] || 'info';
+      text.textContent = message;
+
+      // Mostrar
+      toast.classList.add('visible');
+
+      // Ocultar después de 3s (excepto errores)
+      if (type !== 'error') {
+        setTimeout(() => {
+          toast.classList.remove('visible');
+        }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>

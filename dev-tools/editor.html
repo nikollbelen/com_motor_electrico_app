@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Editor Pro | D3 Visual Configurator</title>
+    <link rel="stylesheet" href="css/editor.css">
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Selector de Paleta de Colores */
+        .palette-option { cursor: pointer; display: block; }
+        .palette-swatch {
+            border-radius: 8px;
+            padding: 8px 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 48px;
+            border: 2px solid transparent;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+        .palette-option:hover .palette-swatch {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .palette-option input[type="radio"]:checked + .palette-swatch {
+            border-color: #1e293b !important;
+            box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.2), 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+        .mini-select {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        .mini-select:hover { border-color: #3874ff; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header class="toolbar">
+        <strong>Lab Editor <small>D3.js Tree Configurator</small></strong>
+        <div class="controls">
+            <input type="file" id="jsonFileInput" style="display: none;" accept=".json">
+            <button id="uploadBtn">Subir JSON</button>
+            <button id="btn-export" class="primary">Download JSON</button>
+            <button id="btn-reset">Reset Vista</button>
+            <button id="btn-fit">Ajustar Árbol</button>
+        </div>
+    </header>
+
+    <main id="editor-layout">
+        <div id="chart"></div>
+    </main>
+
+    <!-- MODAL DE EDICIÓN (BOMBA GEHO STYLE) -->
+    <div id="editModalOverlay" class="modal-overlay">
+        <div class="modal">
+            <h3>Editar Nodo</h3>
+            <div class="modal-body-layout">
+                <div class="col-left">
+                    <!-- CAMPOS PARA EL NODO RAÍZ (LABORATORIO) -->
+                    <div id="root-fields" style="display: none;">
+                        <h4>Configuración Global del Laboratorio</h4>
+                        <div class="form-grid">
+                            <div class="form-group"> <label>Nombre (ESP)</label> <input type="text" id="inpLabName" /> </div>
+                            <div class="form-group"> <label>Nombre (ENG)</label> <input type="text" id="inpLabNameEN" /> </div>
+                            <div class="form-group"> <label>Zoom Máximo Alejamiento</label> <input type="number" id="inpZoomMaxOut" placeholder="Ej: 15000" min="100" step="100" /> </div>
+
+                            <!-- SELECTOR DE PALETA DE COLORES -->
+                            <div class="form-group full-width">
+                                <label>Paleta de Colores del Laboratorio</label>
+                                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 6px;">
+                                    <label class="palette-option" title="Blue Core Reactor">
+                                        <input type="radio" name="palette" value="blue-core" id="pal-blue" style="display:none;">
+                                        <div class="palette-swatch" style="background: linear-gradient(135deg, #0066ff, #003cbf); border: 2px solid transparent;">
+                                            <span style="font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.5);">BLUE CORE</span>
+                                        </div>
+                                    </label>
+                                    <label class="palette-option" title="Cyan Plasma">
+                                        <input type="radio" name="palette" value="cyan-plasma" id="pal-cyan" style="display:none;">
+                                        <div class="palette-swatch" style="background: linear-gradient(135deg, #00d4ff, #0088cc);">
+                                            <span style="font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.5);">CYAN</span>
+                                        </div>
+                                    </label>
+                                    <label class="palette-option" title="Violet Forge">
+                                        <input type="radio" name="palette" value="violet-forge" id="pal-violet" style="display:none;">
+                                        <div class="palette-swatch" style="background: linear-gradient(135deg, #8b5cf6, #5b21b6);">
+                                            <span style="font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.5);">VIOLET</span>
+                                        </div>
+                                    </label>
+                                    <label class="palette-option" title="Amber Fusion">
+                                        <input type="radio" name="palette" value="amber-fusion" id="pal-amber" style="display:none;">
+                                        <div class="palette-swatch" style="background: linear-gradient(135deg, #f59e0b, #b45309);">
+                                            <span style="font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.5);">AMBER</span>
+                                        </div>
+                                    </label>
+                                    <label class="palette-option" title="Emerald Core">
+                                        <input type="radio" name="palette" value="emerald-core" id="pal-emerald" style="display:none;">
+                                        <div class="palette-swatch" style="background: linear-gradient(135deg, #10b981, #065f46);">
+                                            <span style="font-size:9px; font-weight:700; color:white; text-shadow:0 1px 2px rgba(0,0,0,0.5);">EMERALD</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <!-- Campo oculto para compatibilidad con el JSON (guarda el hex del color) -->
+                                <input type="hidden" id="inpThemeColor" value="#0066ff" />
+                            </div>
+
+                            <!-- CONFIGURACIÓN DE AYUDAS -->
+                            <div class="form-group full-width">
+                                <label>Botones Visibles en el Menú Superior</label>
+                                <div class="checkbox-container">
+                                    <div class="checkbox-group"> <input type="checkbox" id="inpLang">      <label for="inpLang">🌐 Idioma</label>    </div>
+                                    <div class="checkbox-group"> <input type="checkbox" id="inpSonido">    <label for="inpSonido">🔊 Sonido</label>    </div>
+                                    <div class="checkbox-group"> <input type="checkbox" id="inpGuardar">   <label for="inpGuardar">💾 Guardar</label>   </div>
+                                    <div class="checkbox-group"> <input type="checkbox" id="inpAyuda">     <label for="inpAyuda">❓ Ayuda</label>      </div>
+                                    <div class="checkbox-group"> <input type="checkbox" id="inpObjetivos"> <label for="inpObjetivos">🎯 Objetivos</label></div>
+                                    <div class="checkbox-group"> <input type="checkbox" id="inpEquipo">    <label for="inpEquipo">⚙️ Equipo</label>    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>Estado Inicial (Laboratorio)</label>
+                                    <div class="form-group full-width" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                            <label style="font-weight: 800; color: #1e293b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Configuración de Cámara</label>
+                                            <select id="selInitCamMode" class="mini-select" onchange="toggleCamInputs('root')" style="border-color: #3874ff; color: #3874ff;">
+                                                <option value="names">Nombres (Objetos)</option>
+                                                <option value="coords">Coordenadas (Manual)</option>
+                                                <option value="log">Log de Consola (Auto)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <!-- Modo Nombres / Coordenadas (Ambos usan 2 inputs) -->
+                                        <div id="root-cam-manual" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                            <div class="form-group">
+                                                <label id="lblInitPos">Objeto Posición</label>
+                                                <input type="text" id="inpInitCam" placeholder="Cam_Pos_01" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label id="lblInitDir">Objeto Dirección</label>
+                                                <input type="text" id="inpInitDir" placeholder="Cam_Dir_01" />
+                                            </div>
+                                        </div>
+
+                                        <!-- Modo Log -->
+                                        <div id="root-cam-log" style="display: none; animation: slideIn 0.2s ease-out;">
+                                            <div class="form-group">
+                                                <label>Pegar Log Completo de la Consola</label>
+                                                <div style="display: flex; gap: 8px;">
+                                                    <input type="text" id="inpInitRawLog" placeholder="[Camera Log] Pos: [...] Target: [...]" style="flex: 1; font-family: monospace; font-size: 11px;" />
+                                                    <button type="button" class="btn-save" style="margin:0; padding: 0 15px; height: 38px; font-size: 11px;" onclick="processRawCamLog('root')">Aplicar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                <div style="margin-top:15px; padding: 10px; background: #f1f5f9; border-radius: 4px;">
+                                    <label style="color:#1e293b; font-weight: bold;">1. Visibilidad Inicial</label>
+                                    <div style="margin-top:10px;">
+                                        <label>Objetos a Ocultar al Inicio (IDs)</label>
+                                        <div class="tag-input-container">
+                                            <input type="text" id="inpInitOcultar" placeholder="Escribe ID y pulsa +">
+                                            <button type="button" class="btn-add-tag" onclick="addTagFromInput('inpInitOcultar', 'tags-init-ocultar')">+</button>
+                                        </div>
+                                        <div id="tags-init-ocultar" class="tags-display"></div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top:15px; padding: 10px; background: #f0f9ff; border-radius: 4px; border: 1px solid #bae6fd;">
+                                    <label style="color:#0369a1; font-weight: bold;">2. Objetos Excluidos del Efecto Cristal</label>
+                                    <div style="margin-top:10px;">
+                                        <label>IDs que nunca recibirán el efecto cristal</label>
+                                        <div class="tag-input-container">
+                                            <input type="text" id="inpCristalExcluir" placeholder="Escribe ID y pulsa +">
+                                            <button type="button" class="btn-add-tag" onclick="addTagFromInput('inpCristalExcluir', 'tags-cristal-excluir')">+</button>
+                                        </div>
+                                        <div id="tags-cristal-excluir" class="tags-display"></div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top:15px; padding: 10px; background: #f0fdf4; border-radius: 4px; border: 1px solid #dcfce7;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <label style="color:#166534; font-weight: bold; margin:0;">3. Secuencias de Animación Inicial</label>
+                                        <button type="button" class="btn-add-mini" onclick="addAnimRow('root')">+</button>
+                                    </div>
+                                    <div id="root-anim-list" class="anim-rows-container"></div>
+                                </div>
+
+                                <!-- SECCIÓN OBJETIVOS -->
+                                <div id="section-objetivos" style="margin-top:15px; padding: 10px; background: #fff7ed; border-radius: 4px; border: 1px solid #ffedd5;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <label style="color:#9a3412; font-weight: bold; margin:0;">4. Objetivos del Laboratorio</label>
+                                        <button type="button" class="btn-add-mini" style="background:#f97316" onclick="addRow('objetivo')">+</button>
+                                    </div>
+                                    <div id="list-objetivos" class="anim-rows-container"></div>
+                                </div>
+
+                                <!-- SECCIÓN EPP -->
+                                <div id="section-epp" style="margin-top:15px; padding: 10px; background: #fdf2f8; border-radius: 4px; border: 1px solid #fce7f3;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <label style="color:#9d174d; font-weight: bold; margin:0;">5. Equipo de Protección (EPP)</label>
+                                        <button type="button" class="btn-add-mini" style="background:#db2777" onclick="addRow('epp')">+</button>
+                                    </div>
+                                    <div id="list-epp" class="anim-rows-container"></div>
+                                </div>
+
+                                <!-- SECCIÓN GENERACIÓN MASIVA DE AUDIO -->
+                                <div style="margin-top:15px; padding: 12px 15px; background: #eff6ff; border-radius: 4px; border: 1px solid #bfdbfe;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <label style="color:#1e40af; font-weight: bold; margin:0;">6. Generar Todos los Audios</label>
+                                        <select id="selAllTTSProvider" class="mini-select" style="border-color: #3b82f6; color: #1d4ed8;">
+                                            <option value="puter">✨ Puter AI</option>
+                                            <option value="elevenlabs">🎙️ ElevenLabs</option>
+                                        </select>
+                                    </div>
+                                    <div id="all-tts-status" style="font-size: 0.78em; color: #64748b; min-height: 1.1em; margin-bottom: 8px;"></div>
+                                    <button type="button" onclick="generateAllAudio()" style="width:100%; padding: 9px 0; background: #1d4ed8; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: 0.03em; transition: background 0.15s;" onmouseover="this.style.background='#1e3a8a'" onmouseout="this.style.background='#1d4ed8'">
+                                        🎤 Generar TODOS los Audios (ES + EN)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAMPOS PARA LOS PASOS -->
+                    <div id="step-fields">
+                        <h4>Propiedades del Paso / Componente</h4>
+                        <div class="form-grid">
+                            <!-- SELECTOR DE MOTOR TTS -->
+                            <div class="form-group full-width" style="display: flex; gap: 8px; align-items: center;">
+                                <label style="margin: 0; font-size: 11px; color: #64748b; white-space: nowrap;">Motor de voz:</label>
+                                <select id="selTTSProvider" class="mini-select" title="Motor de voz para generar la locución" style="border-color: #ef4444; color: #ef4444; font-weight: 700;">
+                                    <option value="puter">✨ Puter AI</option>
+                                    <option value="elevenlabs">🎙️ ElevenLabs</option>
+                                </select>
+                            </div>
+                            <!-- LOCUCIÓN ESPAÑOL -->
+                            <div class="form-group full-width">
+                                <label>🇪🇸 Locución en Español</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="inpNombre" placeholder="Ej: Vista Explosión" style="flex: 1;" />
+                                    <button type="button" class="btn-audio-action" title="Reproducir audio en español" onclick="playCurrentTTS('es')">▶️</button>
+                                    <button type="button" class="btn-audio-action" title="Generar locución en español" style="background:#ef4444;" onclick="confirmAndRegenerateTTS('es')">🎤</button>
+                                </div>
+                            </div>
+                            <!-- LOCUCIÓN INGLÉS -->
+                            <div class="form-group full-width">
+                                <label>🇬🇧 Locución en Inglés</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="text" id="inpNombreEN" placeholder="Ej: Explosion View" style="flex: 1;" />
+                                    <button type="button" class="btn-audio-action" title="Reproducir audio en inglés" onclick="playCurrentTTS('en')">▶️</button>
+                                    <button type="button" class="btn-audio-action" title="Generar locución en inglés" style="background:#ef4444;" onclick="confirmAndRegenerateTTS('en')">🎤</button>
+                                </div>
+                            </div>
+                            <!-- BOTÓN GENERAR AMBOS -->
+                            <div class="form-group full-width" style="display: flex; justify-content: flex-end;">
+                                <button type="button" id="btnRegenerateTTS" class="btn-audio-action" title="Generar locuciones ES + EN a la vez" style="background:#b91c1c; padding: 0 14px; font-size: 11px; font-weight: 700; white-space: nowrap;" onclick="confirmAndRegenerateTTS()">🎤 Generar ES + EN</button>
+                            </div>
+                            <div class="form-group"> <label>Etiqueta / ID</label> <input type="text" id="inpEtiqueta" placeholder="Ej: etiquetaPosObj" /> </div>
+                             
+                             <div class="form-group full-width" style="background: #f1f5f9; padding: 15px; border-radius: 12px; border: 1px solid #cbd5e1; grid-column: span 2; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                    <label style="font-weight: 800; color: #334155; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Configuración de Cámara</label>
+                                    <select id="selStepCamMode" class="mini-select" onchange="toggleCamInputs('step')" style="border-color: #3874ff; color: #3874ff;">
+                                        <option value="names">Nombres (Objetos)</option>
+                                        <option value="coords">Coordenadas (Manual)</option>
+                                        <option value="log">Log de Consola (Auto)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Modo Nombres / Coordenadas -->
+                                <div id="step-cam-manual" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label id="lblStepPos">Objeto Posición</label>
+                                        <input type="text" id="inpPosicion" placeholder="COORDENADA_POS" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label id="lblStepDir">Objeto Dirección</label>
+                                        <input type="text" id="inpDireccion" placeholder="COORDENADA_DIR" />
+                                    </div>
+                                </div>
+
+                                <!-- Modo Log -->
+                                <div id="step-cam-log" style="display: none; animation: slideIn 0.2s ease-out;">
+                                    <div class="form-group">
+                                        <label>Pegar Log Completo de la Consola</label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <input type="text" id="inpStepRawLog" placeholder="[Camera Log] Pos: [...] Target: [...]" style="flex: 1; font-family: monospace; font-size: 11px;" />
+                                            <button type="button" class="btn-save" style="margin:0; padding: 0 15px; height: 38px; font-size: 11px;" onclick="processRawCamLog('step')">Aplicar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                             </div>
+                            
+                            <div class="form-group full-width" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                                <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                                    <input type="checkbox" id="chkEsEtiqueta" onchange="toggleEtiquetaSection()"> 
+                                    <b>¿Es una Anotación / Etiqueta?</b>
+                                </label>
+                            </div>
+
+                            <div id="section-etiqueta" style="display: none; grid-column: span 2;" class="form-grid">
+                                <div class="form-group"> <label>ID Objeto Etiqueta</label> <input type="text" id="inpEtiquetaObj" placeholder="Ej: etiqueta_mesh" /> </div>
+                                <div class="form-group"> <label>ID Objeto Flecha</label> <input type="text" id="inpFlechaObj" placeholder="Ej: flecha_mesh" /> </div>
+                                <div class="form-group"> <label>Descripción (ESP)</label> <input type="text" id="inpSubtitleES" placeholder="Ej: Detalle del componente" /> </div>
+                                <div class="form-group"> <label>Descripción (ENG)</label> <input type="text" id="inpSubtitleEN" placeholder="Ej: Component detail" /> </div>
+                                <div class="form-group"> <label>Tag (ESP)</label> <input type="text" id="inpTagES" placeholder="Ej: ACTIVO" /> </div>
+                                <div class="form-group"> <label>Tag (ENG)</label> <input type="text" id="inpTagEN" placeholder="Ej: ACTIVE" /> </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <label style="font-weight: bold; margin:0;">Control de Animaciones del Paso</label>
+                                    <button type="button" class="btn-add-mini" onclick="addAnimRow('step')">+</button>
+                                </div>
+                                <div id="step-anim-list" class="anim-rows-container"></div>
+                            </div>
+
+                            <div class="form-group"> <label><input type="checkbox" id="inpStopAnim"> Detener Animaciones</label> </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Objetos a Ocultar (IDs)</label>
+                                <div class="tag-input-container">
+                                    <input type="text" id="inpOcultarTxt" placeholder="Escribe ID y pulsa +">
+                                    <button type="button" class="btn-add-tag" onclick="addTagFromInput('inpOcultarTxt', 'tags-ocultar')">+</button>
+                                </div>
+                                <div id="tags-ocultar" class="tags-display"></div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>Objetos a Resaltar (IDs)</label>
+                                <div class="tag-input-container">
+                                    <input type="text" id="inpResaltarTxt" placeholder="Escribe ID y pulsa +">
+                                    <button type="button" class="btn-add-tag" onclick="addTagFromInput('inpResaltarTxt', 'tags-resaltar')">+</button>
+                                </div>
+                                <div id="tags-resaltar" class="tags-display"></div>
+                            </div>
+                            <div id="tts-status" style="margin-top: 4px; font-size: 0.8em; color: #64748b; text-align: right;"></div>
+                            <input type="hidden" id="inpAudioPath">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-right">
+                    <h4>Estructura de Hijos</h4>
+                    <div id="childrenListContainer" class="children-list"></div>
+                    <button class="btn-add-child" onclick="addNewChild()">+ Agregar Sub-paso</button>
+                </div>
+            </div> <!-- Fin de modal-body-layout -->
+
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" onclick="saveNodeChanges()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
+    <div id="confirmModalOverlay" class="modal-overlay" style="display: none; z-index: 2000; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px);">
+        <div class="modal-content" style="max-width: 450px; background: white; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden;">
+            <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 15px 20px;">
+                <h3 id="confirmTitle" style="margin: 0; color: #0f172a; font-size: 1.1em; font-weight: 700;">Confirmar Acción</h3>
+            </div>
+            <div id="confirmMessage" class="modal-body" style="padding: 25px 20px; color: #1e293b; line-height: 1.6; font-size: 1em;">
+                <!-- Mensaje dinámico -->
+            </div>
+            <div class="modal-footer" style="background: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 12px 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="btnConfirmCancel" class="btn-cancel" style="background: white; border: 1px solid #cbd5e1; color: #64748b; margin: 0; padding: 8px 16px;">Cancelar</button>
+                <button id="btnConfirmOk" class="btn-save" style="background: #3874ff; margin: 0; padding: 8px 20px; font-weight: 600;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/editor-ui.js"></script>
+</body>
+</html>

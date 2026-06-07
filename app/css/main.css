@@ -1,0 +1,83 @@
+/* Reseteo básico y variables */
+:root {
+    --text-light: #f8fafc;
+    --primary-color: #2563eb;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Rubik', 'Roboto', sans-serif;
+}
+
+/* El contenedor del 3D cubre toda la pantalla al fondo */
+#v3d-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* La UI se superpone protegiendo los clicks */
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Resucitar clicks en contenedores activos */
+#retroceso-container,
+#preloader-container, #mobile-container, #modal-container {
+    pointer-events: auto;
+}
+
+/* =============================================
+   SISTEMA DE IDIOMAS GLOBAL
+   El body tiene clase lang-es (default) o lang-en.
+   Todos los componentes usan <p class="es"> y <p class="en">.
+   ============================================= */
+
+/* Por defecto: español visible, inglés oculto */
+body .en { display: none; }
+
+/* p.es = bloque, span.es = inline — cada uno conserva su display natural */
+body p.es  { display: block; }
+body span.es { display: inline; }
+
+/* Cuando el usuario cambia a inglés */
+body.lang-en p.es   { display: none; }
+body.lang-en span.es { display: none; }
+body.lang-en p.en   { display: block; }
+body.lang-en span.en { display: inline; }
+
+/* Asegurar lang-es como default */
+body.lang-es p.en    { display: none; }
+body.lang-es span.en { display: none; }
+body.lang-es p.es    { display: block; }
+body.lang-es span.es { display: inline; }
+
+/* =============================================
+   SISTEMA DE LABELS GLOBALES (botón Ayuda)
+   Cuando body tiene clase show-labels, todos los
+   .Ayuda (menú, retroceso, etc) y .Description
+   (ayudas viewer) se muestran.
+   ============================================= */
+body .Ayuda { display: none; }
+
+body.show-labels .Ayuda {
+    display: flex;
+    align-items: center;
+}
+
+body.show-labels .Description {
+    display: flex !important;
+}

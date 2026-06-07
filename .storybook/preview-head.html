@@ -1,0 +1,94 @@
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+<script>
+  /* =====================================================
+   * BLUE CORE REACTOR — Tema principal del Laboratorio 3D
+   * Configurar ANTES de que Tailwind genere sus clases.
+   * ===================================================== */
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          /* Primario: Azul Eléctrico de Laboratorio */
+          "primary":            "#0066ff",
+          "primary-light":      "#66aaff",
+          "on-primary":         "#ffffff",
+          "primary-container":  "#003cbf",
+          "on-primary-container": "#d0e4ff",
+          /* Superficie */
+          "surface":            "#0b1326",
+          "on-surface":         "#dae2fd",
+          "surface-variant":    "#2d3449",
+          "on-surface-variant": "#c7c4d7",
+          "surface-container":  "#171f33",
+          "surface-container-low": "#131b2e",
+          "surface-container-high": "#222a3d",
+          /* Secundarios y utilidades */
+          "secondary":          "#b8c4ff",
+          "on-secondary":       "#1a2b6a",
+          "secondary-container":"#334282",
+          "outline":            "#908fa0",
+          "background":         "#0b1326",
+          "error":              "#ffb4ab"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "container-padding": "24px",
+          "unit": "8px",
+          "margin-lg": "40px",
+          "gutter": "16px"
+        },
+        "fontFamily": {
+          "sans": ["Inter", "sans-serif"],
+          "label-sm": ["Inter"],
+          "display": ["Inter"],
+          "headline-lg": ["Inter"],
+          "headline-lg-mobile": ["Inter"],
+          "body-md": ["Inter"]
+        },
+        "fontSize": {
+          "label-sm": ["13px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500" }],
+          "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+          "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+          "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+        }
+      },
+    },
+  }
+</script>
+
+<style>
+  /* =====================================================
+   * CSS VARIABLES — Fuente única de verdad de colores.
+   * Al estar en :root, NINGÚN framework puede sobreescribirlas.
+   * ===================================================== */
+  :root {
+    --color-primary:           #0066ff;
+    --color-primary-light:     #66aaff;
+    --color-primary-rgb:       0, 102, 255;
+    --color-on-primary:        #ffffff;
+    --color-primary-container: #003cbf;
+    --color-surface:           #0b1326;
+    --color-on-surface:        #dae2fd;
+    --color-on-surface-variant:#c7c4d7;
+
+    --glow-primary:        rgba(0, 102, 255, 0.45);
+    --glow-primary-strong: rgba(0, 102, 255, 0.75);
+    --gradient-primary:    linear-gradient(135deg, #0066ff 0%, #003cbf 100%);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif !important;
+    background-color: var(--color-surface) !important;
+    color: var(--color-on-surface) !important;
+  }
+</style>
+

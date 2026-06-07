@@ -1,0 +1,198 @@
+/* Estilos para la Etiqueta Premium de Verge3D */
+
+/* Forzar fuente del proyecto en todos los elementos de etiqueta.
+   .material-symbols-outlined excluido: necesita su propia font-family para renderizar como icono. */
+.Etiqueta-v3d-panel,
+.Etiqueta-v3d-panel *:not(.material-symbols-outlined) {
+    font-family: 'Rubik', 'Roboto', sans-serif;
+}
+
+/* Contenedor raíz para la ETIQUETA (Invisible, solo para anclaje de línea) */
+.v3d-annotation {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Contenedor raíz para la ETIQUETA (Invisible, solo para anclaje de línea) */
+.Etiqueta-v3d-label-root {
+    position: absolute;
+    pointer-events: none;
+    z-index: 100;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Wrapper 0x0 para el punto — posicionado por proyección 3D→2D en JS */
+.Etiqueta-v3d-point-wrapper {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 90;
+}
+
+.Etiqueta-v3d-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-50%);
+    pointer-events: auto;
+    backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-primary);
+    border-radius: 24px;
+    padding: 14px 20px 14px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    min-width: 260px;
+    max-width: 340px;
+    width: fit-content;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease;
+}
+
+/* Ajustes para Móvil (Dimensiones personalizadas) */
+@media (max-width: 768px) {
+    .Etiqueta-v3d-panel {
+        padding: 10px 14px 10px 10px;
+        min-width: 0;
+        max-width: 240px;
+        gap: 10px;
+        border-radius: 18px;
+    }
+    .Etiqueta-v3d-btn {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    .Etiqueta-v3d-btn .material-symbols-outlined {
+        font-size: 20px !important;
+    }
+    .Etiqueta-v3d-subtitle, .Etiqueta-v3d-status {
+        display: none !important;
+    }
+    .Etiqueta-v3d-title {
+        font-size: 10px;
+        margin: 0;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+        white-space: normal; /* Permitir que el texto baje si llega al ancho máximo */
+    }
+}
+
+.Etiqueta-v3d-anchor {
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 50%;
+    left: 0; /* Por defecto en el borde izquierdo */
+}
+
+.Etiqueta-v3d-panel.is-left .Etiqueta-v3d-anchor {
+    left: auto;
+    right: 0; /* En el borde derecho si la etiqueta está a la izquierda */
+}
+
+/* Orientación a la Derecha (Default) */
+.Etiqueta-v3d-panel.is-right {
+    left: 0; /* Tocando el punto de anclaje */
+    right: auto;
+    flex-direction: row;
+}
+
+/* Orientación a la Izquierda (Flipped) */
+.Etiqueta-v3d-panel.is-left {
+    left: auto;
+    right: 0; /* Tocando el punto de anclaje */
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+/* Forzamos que el contenedor de Verge3D también pase al frente */
+.v3d-annotation:hover {
+    z-index: 10000 !important;
+}
+
+.Etiqueta-v3d-panel:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.4), 0 0 40px var(--glow-primary);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #fff;
+}
+
+.Etiqueta-v3d-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--glow-primary);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.Etiqueta-v3d-btn:hover {
+    transform: scale(1.05);
+}
+
+.Etiqueta-v3d-title {
+    color: var(--color-primary);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 2px 0;
+}
+
+.Etiqueta-v3d-subtitle {
+    color: #1a1c1e !important;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.Etiqueta-v3d-status {
+    color: var(--color-primary);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Punto visual — centrado en el wrapper 0x0 mediante offset negativo */
+.Etiqueta-v3d-point {
+    position: absolute;
+    left: -6px;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-primary);
+    border: 3px solid var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 15px var(--glow-primary-strong);
+    animation: Etiqueta-pulse 2s infinite;
+}
+
+@keyframes Etiqueta-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 var(--glow-primary); }
+    70% { transform: scale(1.3); box-shadow: 0 0 0 15px rgba(0, 0, 0, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+
+/* Soporte para Idiomas */
+body.lang-en [data-lang="es"] { display: none !important; }
+body.lang-en [data-lang="en"] { display: block !important; }
+body.lang-es [data-lang="en"] { display: none !important; }
+body.lang-es [data-lang="es"] { display: block !important; }
