@@ -202,29 +202,6 @@ async function init() {
             window.dispatchEvent(new CustomEvent('modal:equipo:open'));
         }
 
-        if (action === 'tts-provider') {
-            const provider = btn.getAttribute('data-provider');
-            if (provider && Lab.engine?.audio) {
-                Lab.engine.audio.setProvider(provider);
-                Lab.components.vistaPrincipal.setTTSProvider(provider);
-                // Cerrar el dropdown
-                const toggle = vistaPrincipalEl.querySelector('#tts-provider-toggle');
-                if (toggle) toggle.checked = false;
-            }
-        }
-
-        if (action === 'tts-cycle') {
-            if (Lab.engine?.audio) {
-                const current = Lab.engine.audio.provider;
-                const next = current === 'elevenlabs' ? 'puter' : 'elevenlabs';
-                Lab.engine.audio.setProvider(next);
-                Lab.components.vistaPrincipal.setTTSProvider(next);
-                // Cerrar el menú móvil
-                const menuToggle = vistaPrincipalEl.querySelector('#menu-toggle');
-                if (menuToggle) menuToggle.checked = false;
-            }
-        }
-
         if (action === 'save') {
             // Por ahora solo un log o evento genérico
             console.log("[Lab] Guardar escenario...");
@@ -282,7 +259,6 @@ async function init() {
             if (c && typeof c.setLanguage === 'function') c.setLanguage(lang);
         });
 
-        // 3b. Actualizar idioma en el AudioManager (para Puter TTS)
         if (Lab.engine?.audio) Lab.engine.audio.setLanguage(lang);
 
         // 3. Iframe (Verge3D)

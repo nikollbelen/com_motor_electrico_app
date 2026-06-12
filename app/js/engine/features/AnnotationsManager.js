@@ -401,14 +401,14 @@ export class AnnotationsManager {
             <div class="Etiqueta-v3d-panel" id="${panelId}" style="background:rgba(255,255,255,0.03);">
                 <div class="Etiqueta-v3d-anchor" id="${anchorId}"></div>
 
-                <button style="${btnStyle}">
+                <button class="Etiqueta-v3d-btn" style="${btnStyle}">
                     <span class="material-symbols-outlined" style="${iconStyle}">play_arrow</span>
                 </button>
 
                 <div style="min-width:0;flex:1;">
-                    <h4 style="font-family:${RR};color:var(--color-primary);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</h4>
-                    <p style="font-family:${RR};color:rgba(26,28,30,0.7);font-size:12px;font-weight:500;margin:0;white-space:normal;line-height:1.4;">${subtitle}</p>
-                    <span style="font-family:${RR};color:var(--color-primary);font-size:10px;font-weight:600;text-transform:uppercase;opacity:0.7;margin-top:4px;display:block;">${status}</span>
+                    <h4 class="Etiqueta-v3d-title" style="font-family:${RR};color:var(--color-primary);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</h4>
+                    <p class="Etiqueta-v3d-subtitle" style="font-family:${RR};color:rgba(26,28,30,0.7);font-size:12px;font-weight:500;margin:0;white-space:normal;line-height:1.4;">${subtitle}</p>
+                    <span class="Etiqueta-v3d-status" style="font-family:${RR};color:var(--color-primary);font-size:10px;font-weight:600;text-transform:uppercase;opacity:0.7;margin-top:4px;display:block;">${status}</span>
                 </div>
             </div>
         `;

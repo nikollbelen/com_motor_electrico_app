@@ -12,10 +12,8 @@ export class VistaPrincipal {
             tieneBotonAyuda:     options.tieneBotonAyuda !== false,
             tieneBotonObjetivos: options.tieneBotonObjetivos === true,
             tieneBotonEquipo:    options.tieneBotonEquipo === true,
-            tieneBotonTTS:       options.tieneBotonTTS !== false,
             menuItems:           options.menuItems || [],
             lang:                options.lang || 'es',
-            ttsProvider:         options.ttsProvider || localStorage.getItem('tts-provider') || 'puter',
             assistantVisible:    options.assistantVisible === true
         };
 
@@ -27,8 +25,6 @@ export class VistaPrincipal {
                 objetivos: 'Objetivos',
                 equipo: 'Equipo',
                 help: 'Ayuda',
-                tts: 'Voz',
-                ttsLabel: 'Motor de voz',
                 assistant: '"Hola! ¿Necesitas ayuda para navegar por la vista de explosión? Puedo guiarte por cada componente."'
             },
             en: {
@@ -38,8 +34,6 @@ export class VistaPrincipal {
                 objetivos: 'Objectives',
                 equipo: 'Team',
                 help: 'Help',
-                tts: 'Voice',
-                ttsLabel: 'Voice engine',
                 assistant: '"Hi! Do you need help navigating the explosion view? I can guide you through each component."'
             }
         };
@@ -59,13 +53,8 @@ export class VistaPrincipal {
         this.render();
     }
 
-    setTTSProvider(provider) {
-        this.options.ttsProvider = provider;
-        this.render();
-    }
-
     render() {
-        const { menuItems, lang, ttsProvider } = this.options;
+        const { menuItems, lang } = this.options;
         const t = this.translations[lang] || this.translations.es;
 
         this.container.innerHTML = `
@@ -73,7 +62,6 @@ export class VistaPrincipal {
                 <!-- DESKTOP: TOP-RIGHT Controls -->
                 <div class="fixed top-8 right-8 z-50 hidden md:flex items-center gap-3 pointer-events-auto">
                     ${this.options.tieneBotonLang ? this.renderLanguageButton(lang) : ''}
-                    ${this.options.tieneBotonTTS ? this.renderTTSDropdown(ttsProvider, lang) : ''}
                     ${this.options.tieneBotonSonido ? this.renderTopButton('volume_up', t.sound, 'sound') : ''}
                     ${this.options.tieneBotonGuardar ? this.renderTopButton('save', t.save, 'save') : ''}
                     ${this.options.tieneBotonObjetivos ? this.renderTopButton('track_changes', t.objetivos, 'objetivos') : ''}
@@ -92,7 +80,6 @@ export class VistaPrincipal {
                         <div class="absolute top-full right-0 mt-3 p-2 VistaPrincipal-glass-panel rounded-2xl shadow-2xl flex flex-col gap-2 min-w-[150px] opacity-0 translate-y-[-10px] scale-90 pointer-events-none peer-checked:opacity-100 peer-checked:translate-y-0 peer-checked:scale-100 peer-checked:pointer-events-auto VistaPrincipal-menu-transition origin-top-right">
                             ${this.options.tieneBotonLang ? this.renderMobileLanguageButton(lang) : ''}
                             ${this.options.tieneBotonSonido ? this.renderMobileMenuButton('volume_up', t.sound, 'sound') : ''}
-                            ${this.options.tieneBotonTTS ? this.renderMobileTTSButton(ttsProvider, lang) : ''}
                             ${this.options.tieneBotonGuardar ? this.renderMobileMenuButton('save', t.save, 'save') : ''}
                             ${this.options.tieneBotonObjetivos ? this.renderMobileMenuButton('track_changes', t.objetivos, 'objetivos') : ''}
                             ${this.options.tieneBotonEquipo ? this.renderMobileMenuButton('engineering', t.equipo, 'equipo') : ''}
@@ -253,56 +240,4 @@ export class VistaPrincipal {
         `;
     }
 
-    /**
-     * Dropdown de selección de proveedor TTS (desktop).
-     * Usa checkbox + peer para abrir/cerrar sin JavaScript en el HTML.
-     */
-    renderTTSDropdown(provider, lang) {
-        const t = this.translations[lang] || this.translations.es;
-        const isElevenLabs = provider !== 'puter';
-        const providerLabel = isElevenLabs ? 'ElevenLabs' : 'Puter AI';
-        const providerIcon  = isElevenLabs ? 'graphic_eq'  : 'auto_awesome';
-
-        return `
-            <div class="relative">
-                <input type="checkbox" id="tts-provider-toggle" class="hidden peer">
-                <label for="tts-provider-toggle" class="fixed inset-0 hidden peer-checked:block z-[-1] cursor-default"></label>
-                <label for="tts-provider-toggle" class="flex items-center gap-2 px-3 py-2 rounded-full VistaPrincipal-glass-panel VistaPrincipal-hover-active transition-all shadow-xl cursor-pointer" style="color: var(--color-text-dark);">
-                    <span class="material-symbols-outlined text-base">${providerIcon}</span>
-                    <span class="text-sm font-medium">${providerLabel}</span>
-                </label>
-                <div class="absolute top-full right-0 mt-3 p-2 VistaPrincipal-glass-panel rounded-2xl shadow-2xl flex flex-col gap-1 min-w-[180px] opacity-0 translate-y-[-10px] scale-90 pointer-events-none peer-checked:opacity-100 peer-checked:translate-y-0 peer-checked:scale-100 peer-checked:pointer-events-auto VistaPrincipal-menu-transition origin-top-right z-50">
-                    <p class="text-[10px] uppercase tracking-wider font-semibold px-3 pt-1.5 pb-1 opacity-50">${t.ttsLabel}</p>
-                    <button data-action="tts-provider" data-provider="elevenlabs" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all VistaPrincipal-menu-item-hover text-sm w-full text-left ${isElevenLabs ? 'VistaPrincipal-btn-active' : ''}">
-                        <span class="material-symbols-outlined text-lg">graphic_eq</span>
-                        <span class="flex-1">ElevenLabs</span>
-                        ${isElevenLabs ? `<span class="material-symbols-outlined text-sm" style="color:var(--color-primary)">check_circle</span>` : ''}
-                    </button>
-                    <button data-action="tts-provider" data-provider="puter" class="flex items-center gap-3 px-3 py-2 rounded-xl transition-all VistaPrincipal-menu-item-hover text-sm w-full text-left ${!isElevenLabs ? 'VistaPrincipal-btn-active' : ''}">
-                        <span class="material-symbols-outlined text-lg">auto_awesome</span>
-                        <span class="flex-1">Puter AI</span>
-                        ${!isElevenLabs ? `<span class="material-symbols-outlined text-sm" style="color:var(--color-primary)">check_circle</span>` : ''}
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    /** Botón de ciclo de proveedor TTS para el menú móvil. */
-    renderMobileTTSButton(provider, lang) {
-        const t = this.translations[lang] || this.translations.es;
-        const isElevenLabs = provider !== 'puter';
-        const providerLabel = isElevenLabs ? 'ElevenLabs' : 'Puter AI';
-        const providerIcon  = isElevenLabs ? 'graphic_eq'  : 'auto_awesome';
-        return `
-            <button data-action="tts-cycle" class="flex items-center gap-3 px-4 py-2 rounded-xl transition-all VistaPrincipal-menu-item-hover text-sm w-full">
-                <span class="material-symbols-outlined text-xl text-on-surface-dark">${providerIcon}</span>
-                <div class="flex-1 text-left">
-                    <div class="font-medium">${t.tts}</div>
-                    <div class="text-[10px] opacity-60">${providerLabel}</div>
-                </div>
-                <span class="material-symbols-outlined text-base opacity-50">swap_horiz</span>
-            </button>
-        `;
-    }
 }

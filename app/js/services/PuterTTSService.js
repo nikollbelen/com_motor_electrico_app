@@ -1,11 +1,25 @@
 /**
  * PuterTTSService - Genera audio TTS en el navegador usando Puter.js (Gemini)
- * Requiere que puter.js esté cargado como script global en index.html.
+ * Carga puter.js dinámicamente la primera vez que se necesita (no en el index).
  */
 export class PuterTTSService {
     constructor() {
         // Caché: "lang:text" → blob URL, para no regenerar el mismo audio dos veces
         this._cache = new Map();
+        this._loadPromise = null;
+    }
+
+    _loadPuter() {
+        if (window.puter) return Promise.resolve();
+        if (this._loadPromise) return this._loadPromise;
+        this._loadPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://js.puter.com/v2/';
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('[PuterTTS] No se pudo cargar puter.js'));
+            document.head.appendChild(script);
+        });
+        return this._loadPromise;
     }
 
     /**
@@ -16,6 +30,8 @@ export class PuterTTSService {
      */
     async generateAudio(text, lang = 'es') {
         if (!text || !text.trim()) return null;
+
+        await this._loadPuter();
 
         if (!window.puter || typeof window.puter.ai?.txt2speech !== 'function') {
             console.error('[PuterTTS] puter.js no está disponible o no tiene txt2speech.');
