@@ -147,47 +147,55 @@ export class V3DEngine {
         scene.background = new THREE.Color(0xffffff);
 
         const settings = {
-            transmission: 1.0,
-            thickness: 2.0,
-            roughness: 0.05,
-            envMapIntensity: 1.5,
-            ior: 1.5,
             color: '#ffffff',
-            opacity: 1.0,
+            opacity: 0.2,
+            roughness: 0,
+            thickness: 2.4,
+            transmission: 0.45,
             ...options
         };
+
+        // Construir set de UUIDs excluidos: el objeto y todos sus descendientes
+        const excludedUUIDs = new Set();
+        const excludedMeshNames = [];
+        if (excludeNames.length) {
+            scene.traverse(obj => {
+                if (excludeNames.includes(obj.name)) {
+                    obj.traverse(child => {
+                        excludedUUIDs.add(child.uuid);
+                        if (child.isMesh && !child.userData.isOutline) excludedMeshNames.push(child.name);
+                    });
+                }
+            });
+        }
 
         // Aplicar efecto cristal a todos los meshes (excepto fondos y objetos excluidos)
         const glassMeshes = [];
         const skipNames = ['fondo01', 'aiSkyDomeLight2'];
         scene.traverse(obj => {
-            if (obj.isMesh && !obj.userData.isOutline && !skipNames.includes(obj.name) && !excludeNames.includes(obj.name)) {
-                const oldMat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
-                
+            if (obj.isMesh && !obj.userData.isOutline && !skipNames.includes(obj.name) && !excludedUUIDs.has(obj.uuid)) {
                 // Guardar material original si no lo tenemos ya
                 if (!this._materialBackup.has(obj.uuid)) {
                     this._materialBackup.set(obj.uuid, { mesh: obj, material: obj.material });
                 }
-                
-                const glassMat = new THREE.MeshPhysicalMaterial({
+
+                // Verge3D eliminó MeshPhysicalMaterial — usamos MeshStandardMaterial con transparencia
+                const glassMat = new THREE.MeshStandardMaterial({
                     color: new THREE.Color(settings.color),
-                    transmission: settings.transmission,
-                    thickness: settings.thickness,
-                    roughness: settings.roughness,
-                    envMapIntensity: settings.envMapIntensity,
-                    ior: settings.ior,
-                    envMap: scene.environment || scene.background || null,
                     transparent: true,
                     opacity: settings.opacity,
-                    side: THREE.DoubleSide
+                    roughness: settings.roughness,
+                    metalness: 0.05,
+                    side: THREE.DoubleSide,
+                    depthWrite: false
                 });
                 obj.material = glassMat;
                 glassMeshes.push(obj);
             }
         });
 
-        console.log('%c[Lab] Modo Cristal Activado: %c' + glassMeshes.length + ' objetos transformados.', 
-            'color: #00ffff; font-weight: bold;', 'color: white;');
+        console.log('%c[Lab] Modo Cristal: %c' + glassMeshes.length + ' con cristal, ' + excludedMeshNames.length + ' excluidos: ' + excludedMeshNames.join(', '),
+            'color: #00ffff; font-weight: bold;', 'color: #f59e0b;');
 
         // Solo mostrar el panel de control si se solicita (desde consola)
         if (!showUI) return;

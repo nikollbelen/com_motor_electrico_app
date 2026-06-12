@@ -113,23 +113,84 @@ El servidor expone los siguientes endpoints para facilitar la integración con e
 
 ---
 
-## 📸 Herramientas de Depuración de Cámara
+## 🛠️ Funciones de Depuración desde la Consola del Navegador
 
-Para facilitar la configuración de las coordenadas de la cámara en el `info.json`, el motor incluye un sistema de depuración que permite la traslación manual (no solo órbita) y el monitoreo en tiempo real.
+El motor expone un conjunto de funciones globales en `window` que puedes ejecutar directamente desde la consola de DevTools (F12) sin necesidad de modificar código.
 
-### Comandos de Consola (F12)
+### ⚠️ Requisito previo: contexto correcto
+
+El laboratorio carga el motor 3D dentro de un **iframe**. Si la consola apunta al iframe en lugar de la página principal, las funciones no estarán disponibles.
+
+**Pasos para ejecutar cualquier función de debug:**
+
+1. Abre DevTools con **F12**.
+2. Ve a la pestaña **Console**.
+3. En el selector de contexto (dropdown arriba del campo de texto), selecciona **`top`** — no el iframe `motorElectrico.html`.
+4. Espera a que aparezca el mensaje `[Debug Tip]` en color magenta en la consola — eso indica que el motor está listo.
+5. Escribe la función y presiona Enter.
+
+```
+[ top ▼ ]  >  enableGlassMode()
+```
+
+---
+
+### 🪟 Modo Cristal (Glass Mode)
+
+Convierte todos los materiales del modelo en vidrio semitransparente y abre un panel flotante con sliders para ajustar los valores en tiempo real.
 
 | Función | Descripción |
 |---|---|
-| `enableCameraDebug()` | Activa el panel de control manual (flechas en pantalla) y habilita los logs de coordenadas en la consola. |
-| `disableCameraDebug()` | Oculta el panel de depuración y deshabilita los logs de cámara. |
+| `enableGlassMode()` | Activa el modo cristal con valores por defecto y abre el panel de control. |
+| `enableGlassMode({ color, opacity, roughness, thickness, transmission })` | Activa el modo cristal con parámetros personalizados. |
+| `disableGlassMode()` | Restaura todos los materiales originales del modelo. |
 
-### Características del Debugger
+**Ejemplo con parámetros custom:**
+```js
+enableGlassMode({ color: '#aaccff', opacity: 0.4, roughness: 0.02, thickness: 2, transmission: 1 })
+```
 
-- **Traslación Pura:** A diferencia del control de órbita estándar (zoom), los botones **F** (Adelante) y **B** (Atrás) mueven físicamente la cámara y su punto de enfoque por el espacio, permitiendo encuadres precisos.
-- **Monitoreo en Tiempo Real:** El panel muestra las coordenadas exactas de **Posición** (POS) y **Objetivo** (TAR).
-- **Logs Copiables:** Cada movimiento imprime en la consola una línea con el formato exacto que espera el Editor: `[Camera Log] Pos: [...] Target: [...]`.
-- **Sensibilidad:** El sistema está calibrado con saltos de 50 unidades para un ajuste fino y profesional.
+**El panel flotante permite ajustar en tiempo real:**
+- Color del vidrio
+- Opacidad (0–1)
+- Rugosidad (0–1)
+- Grosor (0–5)
+- Transmisión (0–1)
+
+Cierra el panel con el botón **Cerrar Panel** o restaura con `disableGlassMode()`.
+
+---
+
+### 📸 Depuración de Cámara
+
+Para facilitar la configuración de coordenadas de cámara en el `info.json`.
+
+| Función | Descripción |
+|---|---|
+| `enableCameraDebug()` | Activa el panel de control manual (flechas en pantalla) y habilita los logs de coordenadas. |
+| `disableCameraDebug()` | Oculta el panel y deshabilita los logs. |
+
+- **Traslación Pura:** Los botones **F** (Adelante) y **B** (Atrás) mueven físicamente la cámara y su punto de enfoque.
+- **Monitoreo en Tiempo Real:** El panel muestra **Posición** (POS) y **Objetivo** (TAR) exactos.
+- **Logs Copiables:** Cada movimiento imprime en la consola el formato exacto que espera el Editor: `[Camera Log] Pos: [...] Target: [...]`.
+
+---
+
+### 🎨 Depuración de Resaltados y Clipping
+
+| Función | Descripción |
+|---|---|
+| `debugHighlightUI()` | Abre el panel de control de resaltados (color, intensidad, objetos). |
+| `debugClippingUI()` | Abre el panel de control del plano de corte (clipping) en tiempo real. |
+
+---
+
+### 🔬 Modo Rayos X (X-Ray)
+
+| Función | Descripción |
+|---|---|
+| `enableXRay()` | Activa el plano de corte para ver el interior del modelo. |
+| `disableXRay()` | Desactiva el plano de corte. |
 
 ---
 *Desarrollado con estándares de ingeniería senior para máxima escalabilidad.*

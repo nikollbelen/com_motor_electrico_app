@@ -332,6 +332,18 @@ function buscarNodoRecursivo(menu, id) {
     return null;
 }
 
+function buscarNodoPadre(menu, id, padre = null) {
+    if (!menu || !id) return null;
+    for (const item of menu) {
+        if (item.id === id) return padre;
+        if (item.children) {
+            const found = buscarNodoPadre(item.children, id, item);
+            if (found !== undefined) return found;
+        }
+    }
+    return undefined;
+}
+
 /**
  * Ejecuta un paso utilizando la nueva arquitectura modular
  * @param {string} pasoId
@@ -375,18 +387,19 @@ function ejecutarPaso(pasoId, skipAudio = false, useGlobalHighlight = false) {
     
     if (useGlobalHighlight) {
         // Efecto Cristal para navegación desde etiquetas (sin panel de debug)
-        // Los objetos a resaltar de la etiqueta mantienen su material original
-        // objetos_cristal (config global) siempre quedan excluidos del efecto
+        // Se excluyen: objetos del nodo padre, objetos de la etiqueta, y objetos_cristal globales
+        const padreConfig = buscarNodoPadre(Lab.config.menu, pasoId);
         const objetosProtegidos = [
+            ...(padreConfig?.objeto_resaltar || []),
             ...(pasoConfig.objeto_resaltar || []),
             ...(Lab.config.objetos_cristal || [])
         ];
         Lab.engine._applyGlassEffect({
-            color: '#949494',
-            opacity: 0.55,
-            roughness: 0.05,
-            thickness: 2,
-            transmission: 1
+            color: '#ffffff',
+            opacity: 0.2,
+            roughness: 0,
+            thickness: 2.4,
+            transmission: 0.45
         }, false, objetosProtegidos);
         Lab.engine.currentStepSelection = Lab.engine.allMeshes;
     } else {
