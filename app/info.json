@@ -259,226 +259,258 @@
       "icon": "open_in_full",
       "animaciones": [
         {
-          "nombre": "chuteAlimentacion_group",
+          "nombre": "polySurface2",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "rotor_group",
+          "nombre": "pernoM_17",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "cojineteFijoA_group",
+          "nombre": "polySurface6",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "cojineteFront_P01_mesh",
+          "nombre": "cubiertatrasera02_mesh",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "cojineteFront_P02_mesh",
+          "nombre": "pernoM_16",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "padHidro01_mesh",
+          "nombre": "pernoM_10",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "padEmpuje_mesh",
+          "nombre": "rodamiento02_mesh",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "trunionA_mesh",
+          "nombre": "pernoM_14",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "tapaA_group",
+          "nombre": "pernoM_13",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "estator02_mesh",
+          "nombre": "pernoM_15",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "estator03_mesh",
+          "nombre": "pernoM_11",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "estator04_mesh",
+          "nombre": "pernoM_12",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "estator01_mesh",
+          "nombre": "pernoM_09",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "revestimientos02_mesh",
+          "nombre": "pernoM_18",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "revestimientos04_mesh",
+          "nombre": "pernoM_19",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "lub_group",
+          "nombre": "pernoM_20",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "conjuntoFreno_group",
+          "nombre": "pernoM_06",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "freno02_mesh",
+          "nombre": "pernoM_07",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "shell_group",
+          "nombre": "pernoM_03",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "tapaDescarga_group",
+          "nombre": "pernoM_04",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "tapaMolino03_mesh",
+          "nombre": "pernoM_01",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "trunioD_mesh",
+          "nombre": "pernoM_02",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "cojineteD_group",
+          "nombre": "pernoM_21",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "cojinetePost_P01_mesh",
+          "nombre": "pernoM_22",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "cojinetePost_P02_mesh",
+          "nombre": "cubiertaFront_grp",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "padHidro02_mesh",
+          "nombre": "rodamiento01_grp",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "tromel_group",
+          "nombre": "eje_grp",
           "frame": [
-            300,
-            380
+            0,
+            210
           ],
           "modo": "LoopOnce"
         },
         {
-          "nombre": "chute_mesh",
+          "nombre": "cajaConec_grp",
           "frame": [
-            300,
-            380
+            0,
+            210
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "carcasa_grp",
+          "frame": [
+            0,
+            210
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "estator_grp",
+          "frame": [
+            0,
+            210
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "ventilador_grp",
+          "frame": [
+            0,
+            210
+          ],
+          "modo": "LoopOnce"
+        },
+        {
+          "nombre": "cubiertaTras_grp",
+          "frame": [
+            0,
+            210
           ],
           "modo": "LoopOnce"
         }
