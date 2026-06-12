@@ -12,7 +12,9 @@
     "animacionInicio": null
   },
   "objetos_cristal": [
-    "pPlatonic1"
+    "pPlatonic1",
+    "esferaFondo_mesh",
+    "baseCircular"
   ],
   "menu": [
     {
