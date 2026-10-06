@@ -730,19 +730,19 @@ export class RealtimeControls {
     }
 
     async _takeSnap() {
-        const t = RealtimeControls.translations[this.lang] || RealtimeControls.translations.es;
+        const texts = RealtimeControls.translations[this.lang] || RealtimeControls.translations.es;
         const c = document.getElementById('snap-content');
         try {
-            c.innerHTML = `<div class="rt-icon"><span class="material-symbols-outlined">hourglass_top</span></div><h3 class="rt-title">${t.snapSaving}</h3>`;
+            c.innerHTML = `<div class="rt-icon"><span class="material-symbols-outlined">hourglass_top</span></div><h3 class="rt-title">${texts.snapSaving}</h3>`;
             const engine = window.Lab.engine;
             const cam = engine.instance.camera;
             const ctrl = engine.instance.controls;
-            const t = ctrl.targetObj ? ctrl.targetObj.position : ctrl.target;
+            const target = ctrl.targetObj ? ctrl.targetObj.position : ctrl.target;
             const state = {
                 active: false,
                 currentPaso: window.Lab?.currentPasoId || null,
                 currentPasoHighlight: window.Lab?.currentPasoHighlight || false,
-                camera: { position: { x:+cam.position.x.toFixed(2), y:+cam.position.y.toFixed(2), z:+cam.position.z.toFixed(2) }, target: { x:+t.x.toFixed(2), y:+t.y.toFixed(2), z:+t.z.toFixed(2) } },
+                camera: { position: { x:+cam.position.x.toFixed(2), y:+cam.position.y.toFixed(2), z:+cam.position.z.toFixed(2) }, target: { x:+target.x.toFixed(2), y:+target.y.toFixed(2), z:+target.z.toFixed(2) } },
                 action: null, 
                 ui: { lang: document.body.classList.contains('lang-en') ? 'en' : 'es' }
             };
@@ -761,8 +761,8 @@ export class RealtimeControls {
             const url = this._buildSnapshotUrl(snapId);
             c.innerHTML = `
                 <div class="rt-icon" style="background:rgba(22,163,74,0.12);color:#16a34a;"><span class="material-symbols-outlined">check_circle</span></div>
-                <h3 class="rt-title">${t.snapDone}</h3>
-                <p class="rt-desc">${t.snapDoneDesc}</p>
+                <h3 class="rt-title">${texts.snapDone}</h3>
+                <p class="rt-desc">${texts.snapDoneDesc}</p>
                 <div class="rt-link-box" id="snap-copy" title="Clic para copiar"><code>${url}</code><span class="material-symbols-outlined rt-copy-icon">content_copy</span></div>
                 <div class="rt-toast" id="snap-copied">✓ Enlace copiado</div>`;
             setTimeout(() => { document.getElementById('snap-copy').onclick = () => this._copy(url, 'snap-copied'); }, 30);
