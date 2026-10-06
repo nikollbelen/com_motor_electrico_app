@@ -756,16 +756,11 @@ async function _generateTTSWithPuter(text, lang, fileName, extraFileNames) {
         throw new Error('puter.js no está disponible. Recarga la página.');
     }
 
-    const langInstructions = {
-        es: 'Habla en español con un tono educativo, claro y profesional.',
-        en: 'Speak in English in a clear, educational, professional tone.'
-    };
-
     const response = await window.puter.ai.txt2speech(text, {
-        provider: 'gemini',
-        model: 'gemini-2.5-flash-preview-tts',
-        voice: 'Achird',
-        instructions: langInstructions[lang] || langInstructions.es
+        provider: 'openai',
+        model: 'gpt-4o-mini-tts',
+        voice: 'alloy',
+        response_format: 'mp3'
     });
 
     // Normalizar respuesta a Blob
@@ -882,15 +877,11 @@ async function _puterToBase64(text, lang) {
     if (!window.puter || typeof window.puter.ai?.txt2speech !== 'function') {
         throw new Error('puter.js no está disponible. Recarga la página.');
     }
-    const langInstructions = {
-        es: 'Habla en español con un tono educativo, claro y profesional.',
-        en: 'Speak in English in a clear, educational, professional tone.'
-    };
     const response = await window.puter.ai.txt2speech(text, {
-        provider: 'gemini',
-        model: 'gemini-2.5-flash-preview-tts',
-        voice: 'Achird',
-        instructions: langInstructions[lang] || langInstructions.es
+        provider: 'openai',
+        model: 'gpt-4o-mini-tts',
+        voice: 'alloy',
+        response_format: 'mp3'
     });
     let blob = null;
     if (response instanceof Blob) {
